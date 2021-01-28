@@ -75,7 +75,7 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
     protected boolean readonlyProperties = false;
     protected boolean swiftUseApiNamespace;
     protected String[] responseAs = new String[0];
-    protected String sourceFolder = "Classes" + File.separator + "OpenAPIs";
+    protected String sourceFolder = "Sources";
     protected HashSet objcReservedWords;
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
@@ -353,7 +353,7 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
         } else {
             additionalProperties.put(PROJECT_NAME, projectName);
         }
-        sourceFolder = projectName + File.separator + sourceFolder;
+        sourceFolder = sourceFolder + File.separator + projectName;
 
         // Setup nonPublicApi option, which generates code with reduced access
         // modifiers; allows embedding elsewhere without exposing non-public API calls
@@ -405,7 +405,7 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
         additionalProperties.put(READONLY_PROPERTIES, readonlyProperties);
 
         // Setup swiftUseApiNamespace option, which makes all the API
-        // classes inner-class of {{projectName}}API
+        // classes inner-class of {{projectName}}
         if (additionalProperties.containsKey(SWIFT_USE_API_NAMESPACE)) {
             setSwiftUseApiNamespace(convertPropertyToBooleanAndWriteBack(SWIFT_USE_API_NAMESPACE));
         }
