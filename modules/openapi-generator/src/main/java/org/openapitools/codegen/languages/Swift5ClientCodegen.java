@@ -501,7 +501,7 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
         if (this.reservedWordsMappings().containsKey(name)) {
             return this.reservedWordsMappings().get(name);
         }
-        return "_" + name;  // add an underscore to the name
+        return "`" + name + "`";
     }
 
     @Override
