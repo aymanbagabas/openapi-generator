@@ -725,9 +725,14 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
         // pet_id => petId
         name = camelize(name, true);
 
-        // for reserved word or word starting with number, append _
-        if (isReservedWord(name) || name.matches("^\\d.*")) {
+        // for reserved words surround with ``
+        if (isReservedWord(name)) {
             name = escapeReservedWord(name);
+        }
+
+        // for words starting with number, append _
+        if (name.matches("^\\d.*")) {
+            name = "_" + name;
         }
 
         return name;
@@ -750,9 +755,14 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
         // pet_id => petId
         name = camelize(name, true);
 
-        // for reserved word or word starting with number, append _
-        if (isReservedWord(name) || name.matches("^\\d.*")) {
+        // for reserved words surround with ``
+        if (isReservedWord(name)) {
             name = escapeReservedWord(name);
+        }
+
+        // for words starting with number, append _
+        if (name.matches("^\\d.*")) {
+            name = "_" + name;
         }
 
         return name;
