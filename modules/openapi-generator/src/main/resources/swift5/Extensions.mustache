@@ -87,7 +87,7 @@ extension UUID: JSONEncodable {
     func encodeToJSON() -> Any {
         return self.uuidString
     }
-}
+}{{/useVapor}}
 
 extension String: CodingKey {
 
@@ -173,7 +173,7 @@ extension KeyedDecodingContainerProtocol {
         return map
     }
 
-}
+}{{^useVapor}}
 
 extension HTTPURLResponse {
     var isStatusCodeSuccessful: Bool {
@@ -196,5 +196,204 @@ extension RequestBuilder {
     }
 }{{/usePromiseKit}}{{#useVapor}}
 
+public enum JSON: Content {
+    case string(String)
+    case int(Int)
+    case double(Double)
+    case bool(Bool)
+    case dictionary([String: JSON])
+    case array([JSON])
+
+    enum Key: CodingKey {
+        case string(String)
+        case int(Int)
+
+        init?(intValue: Int) {
+            self = .int(intValue)
+        }
+
+        init?(stringValue: String) {
+            self = .string(stringValue)
+        }
+
+        var intValue: Int? {
+            switch self {
+            case .int(let int):
+                return int
+            case.string:
+                return nil
+            }
+        }
+
+        var stringValue: String {
+            switch self {
+            case .int(let int):
+                return int.description
+            case.string(let string):
+                return string
+            }
+        }
+    }
+
+    public init(from decoder: Decoder) throws {
+        if let keyed = try? decoder.container(keyedBy: Key.self) {
+            self = try .dictionary(.init(
+                uniqueKeysWithValues: keyed.allKeys.map { key in
+                    try (key.stringValue, keyed.decode(JSON.self, forKey: key))
+                }
+            ))
+        } else if var unkeyed = try? decoder.unkeyedContainer() {
+            self = try .array((0..<unkeyed.count!).map { i in
+                try unkeyed.decode(JSON.self)
+            })
+        } else {
+            let singleValue = try decoder.singleValueContainer()
+            if let double = try? singleValue.decode(Double.self) {
+                self = .double(double)
+            } else if let int = try? singleValue.decode(Int.self) {
+                self = .int(int)
+            } else if let bool = try? singleValue.decode(Bool.self) {
+                self = .bool(bool)
+            } else {
+                self = try .string(singleValue.decode(String.self))
+            }
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        switch self {
+        case .string(let string):
+            var singleValue = encoder.singleValueContainer()
+            try singleValue.encode(string)
+        case .int(let int):
+            var singleValue = encoder.singleValueContainer()
+            try singleValue.encode(int)
+        case .double(let double):
+            var singleValue = encoder.singleValueContainer()
+            try singleValue.encode(double)
+        case .bool(let bool):
+            var singleValue = encoder.singleValueContainer()
+            try singleValue.encode(bool)
+        case .dictionary(let dictionary):
+            var keyed = encoder.container(keyedBy: Key.self)
+            try dictionary.forEach { (key, value) in
+                try keyed.encode(value, forKey: .string(key))
+            }
+        case .array(let array):
+            var unkeyed = encoder.unkeyedContainer()
+            try array.forEach { value in
+                try unkeyed.encode(value)
+            }
+        }
+    }
+
+    public var stringValue: String? {
+        if case .string(let str) = self {
+            return str
+        }
+        return nil
+    }
+
+    public var intValue: Int? {
+        if case .int(let int) = self {
+            return int
+        }
+        return nil
+    }
+
+    public var doubleValue: Double? {
+        if case .double(let double) = self {
+            return double
+        }
+        return nil
+    }
+
+    public var boolValue: Bool? {
+        if case .bool(let bool) = self {
+            return bool
+        }
+        return nil
+    }
+
+    public var dictionaryValue: [String: JSON]? {
+        if case .dictionary(let dictionary) = self {
+            return dictionary
+        }
+        return nil
+    }
+
+    public var arrayValue: [JSON]? {
+        if case .array(let array) = self {
+            return array
+        }
+        return nil
+    }
+}
+
+extension JSON: Hashable {
+    public static func == (lhs: JSON, rhs: JSON) -> Bool {
+        if case .string(let str1) = lhs, case .string(let str2) = rhs {
+            return str1 == str2
+        } else if case .int(let int1) = lhs, case .int(let int2) = rhs {
+            return int1 == int2
+        } else if case .double(let double1) = lhs, case .double(let double2) = rhs {
+            return double1 == double2
+        } else if case .bool(let bool1) = lhs, case .bool(let bool2) = rhs {
+            return bool1 == bool2
+        } else if case .dictionary(let dictionary1) = lhs, case .dictionary(let dictionary2) = rhs {
+            return dictionary1 == dictionary2
+        } else if case .array(let array1) = lhs, case .array(let array2) = rhs {
+            return array1 == array2
+        } else {
+            return false
+        }
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .string(let str):
+            hasher.combine(str.hashValue)
+        case .int(let int):
+            hasher.combine(int.hashValue)
+        case .double(let double):
+            hasher.combine(double.hashValue)
+        case .bool(let bool):
+            hasher.combine(bool.hashValue)
+        case .dictionary(let dictionary):
+            hasher.combine(dictionary.hashValue)
+        case .array(let array):
+            hasher.combine(array.hashValue)
+        }
+    }
+}
+
 extension URL: Content { }
+
+extension Bool: Content { }
+
+extension Set: ResponseEncodable where Element: Content {
+    public func encodeResponse(for request: Vapor.Request) -> EventLoopFuture<Vapor.Response> {
+        let response = Vapor.Response()
+        do {
+            try response.content.encode(Array(self))
+        } catch {
+            return request.eventLoop.makeFailedFuture(error)
+        }
+        return request.eventLoop.makeSucceededFuture(response)
+    }
+}
+
+extension Set: RequestDecodable where Element: Content {
+    public static func decodeRequest(_ request: Vapor.Request) -> EventLoopFuture<Self> {
+        do {
+            let content = try request.content.decode([Element].self)
+            return request.eventLoop.makeSucceededFuture(Set(content))
+        } catch {
+            return request.eventLoop.makeFailedFuture(error)
+        }
+    }
+}
+
+extension Set: Content where Element: Content { }
+
 {{/useVapor}}

@@ -213,8 +213,8 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
         typeMapping.put("float", "Float");
         typeMapping.put("number", "Double");
         typeMapping.put("double", "Double");
-        typeMapping.put("file", "Data");
-        typeMapping.put("binary", "Data");
+        typeMapping.put("file", "URL");
+        typeMapping.put("binary", "URL");
         typeMapping.put("ByteArray", "Data");
         typeMapping.put("UUID", "UUID");
         typeMapping.put("URI", "String");
@@ -334,7 +334,15 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
         final Schema additionalProperties = getAdditionalProperties(schema);
 
         if (additionalProperties != null) {
-            codegenModel.additionalPropertiesType = getSchemaType(additionalProperties);
+            Schema inner = null;
+            if (ModelUtils.isArraySchema(schema)) {
+                ArraySchema ap = (ArraySchema) schema;
+                inner = ap.getItems();
+            } else if (ModelUtils.isMapSchema(schema)) {
+                inner = getAdditionalProperties(schema);
+            }
+
+            codegenModel.additionalPropertiesType = inner != null ? getTypeDeclaration(inner) : getSchemaType(additionalProperties);
         }
     }
 
@@ -489,6 +497,10 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
                 break;
             case LIBRARY_VAPOR:
                 additionalProperties.put("useVapor", true);
+                typeMapping.put("object", "JSON");
+                typeMapping.put("AnyType", "JSON");
+                typeMapping.put("file", "Data");
+                typeMapping.put("binary", "Data");
                 break;
             default:
                 break;
@@ -551,12 +563,12 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
 
     @Override
     public boolean isDataTypeFile(String dataType) {
-        return dataType != null && dataType.equals("URL");
+        return dataType != null && getLibrary().equals(LIBRARY_VAPOR) ? dataType.equals("Data") : dataType.equals("URL");
     }
 
     @Override
     public boolean isDataTypeBinary(final String dataType) {
-        return dataType != null && dataType.equals("Data");
+        return dataType != null && getLibrary().equals(LIBRARY_VAPOR) ? dataType.equals("Data") : dataType.equals("URL");
     }
 
     /**
