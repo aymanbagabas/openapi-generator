@@ -518,7 +518,7 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
         if (this.reservedWordsMappings().containsKey(name)) {
             return this.reservedWordsMappings().get(name);
         }
-        return "`" + name + "`";
+        return objcCompatible ? "_" + name : "`" + name + "`";
     }
 
     @Override
