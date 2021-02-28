@@ -114,10 +114,10 @@ Name | Type | Description  | Notes
 ```swift
 {{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}public{{/nonPublicApi}} enum {{#lambda.titlecase}}{{operationId}}{{/lambda.titlecase}} {
     {{#responses}}
-    case http{{code}}(value: {{#dataType}}{{dataType}}{{/dataType}}{{^dataType}}Void{{/dataType}}, raw: ClientResponse)
+    case http{{code}}(value: {{#dataType}}{{dataType}}?{{/dataType}}{{^dataType}}Void?{{/dataType}}, raw: ClientResponse)
     {{/responses}}
     {{^hasDefaultResponse}}
-    case http0(value: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}, raw: ClientResponse)
+    case http0(value: {{#returnType}}{{returnType}}?{{/returnType}}{{^returnType}}Void?{{/returnType}}, raw: ClientResponse)
     {{/hasDefaultResponse}}
 }
 ```
