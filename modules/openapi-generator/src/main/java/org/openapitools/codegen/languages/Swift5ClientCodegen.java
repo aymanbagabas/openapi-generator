@@ -62,6 +62,7 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
     public static final String DEFAULT_POD_AUTHORS = "OpenAPI Generator";
     public static final String LENIENT_TYPE_CAST = "lenientTypeCast";
     public static final String USE_SPM_FILE_STRUCTURE = "useSPMFileStructure";
+    public static final String USE_CLASS_MODELS = "useClassModels";
     protected static final String LIBRARY_ALAMOFIRE = "alamofire";
     protected static final String LIBRARY_URLSESSION = "urlsession";
     protected static final String LIBRARY_VAPOR = "vapor";
@@ -77,6 +78,7 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
     protected boolean readonlyProperties = false;
     protected boolean swiftUseApiNamespace = false;
     protected boolean useSPMFileStructure = false;
+    protected boolean useClassModels = false;
     protected String[] responseAs = new String[0];
     protected String sourceFolder = "Classes" + File.separator + "OpenAPIs";
     protected HashSet objcReservedWords;
@@ -847,6 +849,10 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
 
     public void setUseSPMFileStructure(boolean useSPMFileStructure) {
         this.useSPMFileStructure = useSPMFileStructure;
+    }
+
+    public void setUseClassModels(boolean useClassModels) {
+        this.useClassModels = useClassModels;
     }
 
     @Override

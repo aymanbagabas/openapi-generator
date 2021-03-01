@@ -5,5 +5,6 @@ inputSpec: modules/openapi-generator/src/test/resources/2_0/swift/petstore-with-
 templateDir: modules/openapi-generator/src/main/resources/swift5
 generateAliasAsModel: true
 useSPMFileStructure: true
+useClassModels: true
 additionalProperties:
   projectName: PetstoreClient
