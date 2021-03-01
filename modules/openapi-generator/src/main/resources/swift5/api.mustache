@@ -10,7 +10,8 @@ import PromiseKit{{/usePromiseKit}}{{#useRxSwift}}
 import RxSwift{{/useRxSwift}}{{#useCombine}}
 #if canImport(Combine)
 import Combine
-#endif{{/useCombine}}{{#swiftUseApiNamespace}}
+#endif{{/useCombine}}{{#useVapor}}
+import Vapor{{/useVapor}}{{#swiftUseApiNamespace}}
 
 extension {{projectName}} {
 {{/swiftUseApiNamespace}}
@@ -18,7 +19,10 @@ extension {{projectName}} {
 {{#description}}
 /** {{description}} */{{/description}}
 {{#objcCompatible}}@objc {{/objcCompatible}}{{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}open{{/nonPublicApi}} class {{classname}}{{#objcCompatible}} : NSObject{{/objcCompatible}} {
+    {{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}public{{/nonPublicApi}} init() { }
 {{#operation}}
+
+{{^useVapor}}
     {{#allParams}}
     {{#isEnum}}
     /**
@@ -69,6 +73,7 @@ extension {{projectName}} {
 {{/useResult}}
 {{/useRxSwift}}
 {{/usePromiseKit}}
+{{/useVapor}}
 {{#usePromiseKit}}
     /**
      {{#summary}}
@@ -196,7 +201,91 @@ extension {{projectName}} {
         }
     }
 {{/useResult}}
+{{#useVapor}}
+    {{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}public{{/nonPublicApi}} enum {{#lambda.titlecase}}{{operationId}}{{/lambda.titlecase}} {
+        {{#responses}}
+        case http{{code}}(value: {{#dataType}}{{dataType}}{{/dataType}}{{^dataType}}Void{{/dataType}}, raw: ClientResponse)
+        {{/responses}}
+        {{^hasDefaultResponse}}
+        case http0(value: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}, raw: ClientResponse)
+        {{/hasDefaultResponse}}
+    }
 
+    /**
+     {{#summary}}
+     {{{summary}}}
+     {{/summary}}
+     - {{httpMethod}} {{{path}}}{{#notes}}
+     - {{{notes}}}{{/notes}}{{#subresourceOperation}}
+     - subresourceOperation: {{subresourceOperation}}{{/subresourceOperation}}{{#defaultResponse}}
+     - defaultResponse: {{defaultResponse}}{{/defaultResponse}}
+     {{#authMethods}}
+     - {{#isBasic}}BASIC{{/isBasic}}{{#isOAuth}}OAuth{{/isOAuth}}{{#isApiKey}}API Key{{/isApiKey}}:
+       - type: {{type}}{{#keyParamName}} {{keyParamName}} {{#isKeyInQuery}}(QUERY){{/isKeyInQuery}}{{#isKeyInHeaer}}(HEADER){{/isKeyInHeaer}}{{/keyParamName}}
+       - name: {{name}}
+       {{/authMethods}}
+     {{#hasResponseHeaders}}
+     - responseHeaders: [{{#responseHeaders}}{{{baseName}}}({{{dataType}}}){{^-last}}, {{/-last}}{{/responseHeaders}}]
+     {{/hasResponseHeaders}}
+     {{#externalDocs}}
+     - externalDocs: {{externalDocs}}
+     {{/externalDocs}}
+     {{#allParams}}
+     - parameter {{paramName}}: ({{#isFormParam}}form{{/isFormParam}}{{#isQueryParam}}query{{/isQueryParam}}{{#isPathParam}}path{{/isPathParam}}{{#isHeaderParam}}header{{/isHeaderParam}}{{#isBodyParam}}body{{/isBodyParam}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+     {{/allParams}}
+     - returns: EventLoopFuture<{{#lambda.titlecase}}{{operationId}}{{/lambda.titlecase}}> {{description}}
+     */
+    {{#isDeprecated}}
+    @available(*, deprecated, message: "This operation is deprecated.")
+    {{/isDeprecated}}
+    {{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}open{{/nonPublicApi}} func {{operationId}}({{#allParams}}{{paramName}}: {{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}{{{datatypeWithEnum}}}_{{operationId}}{{/isContainer}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{^-last}}, {{/-last}}{{/allParams}}{{#hasParams}}, {{/hasParams}}headers: HTTPHeaders = {{projectName}}.customHeaders, beforeSend: (inout ClientRequest) throws -> () = { _ in }) -> EventLoopFuture<{{#lambda.titlecase}}{{operationId}}{{/lambda.titlecase}}> {
+        {{^pathParams}}let{{/pathParams}}{{#pathParams}}{{#-first}}var{{/-first}}{{/pathParams}} path = "{{{path}}}"{{#pathParams}}
+        let {{paramName}}PreEscape = String(describing: {{#isEnum}}{{paramName}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}.rawValue{{/isContainer}}{{/isEnum}}{{^isEnum}}{{paramName}}{{/isEnum}})
+        let {{paramName}}PostEscape = {{paramName}}PreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
+        path = path.replacingOccurrences(of: "{{=<% %>=}}{<%baseName%>}<%={{ }}=%>", with: {{paramName}}PostEscape, options: .literal, range: nil){{/pathParams}}
+        let URLString = {{projectName}}.basePath + path
+
+        guard let apiClient = {{#swiftUseApiNamespace}}{{projectName}}.{{/swiftUseApiNamespace}}Configuration.apiClient else {
+            fatalError("Configuration.apiClient is not set.")
+        }
+
+        return apiClient.send(.{{httpMethod}}, headers: headers, to: URI(string: URLString)) { request in
+            try {{#swiftUseApiNamespace}}{{projectName}}.{{/swiftUseApiNamespace}}Configuration.apiWrapper(&request)
+            {{#hasHeaderParams}}{{#headerParams}}request.headers.add(name: "{{baseName}}", value: {{paramName}}{{^required}} ?? ""{{/required}}){{/headerParams}}{{/hasHeaderParams}}
+            {{#hasQueryParams}}struct QueryParams: Content {
+                {{#queryParams}}
+                var {{paramName}}: {{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}{{{datatypeWithEnum}}}_{{operationId}}{{/isContainer}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{^required}}?{{/required}}
+                {{/queryParams}}
+            }
+            try request.query.encode(QueryParams({{#queryParams}}{{paramName}}: {{paramName}}{{^-last}}, {{/-last}}{{/queryParams}})){{/hasQueryParams}}
+            {{#hasBodyParam}}
+            {{#bodyParam}}{{#required}}{{#isBinary}}request.body = ByteBuffer(data: {{paramName}}){{/isBinary}}{{^isBinary}}{{#isFile}}request.body = ByteBuffer(data: {{paramName}}){{/isFile}}try request.content.encode({{paramName}}){{/isBinary}}{{/required}}{{^required}}if let body = {{paramName}} {
+                {{#isBinary}}request.body = ByteBuffer(data: body){{/isBinary}}{{^isBinary}}{{#isFile}}request.body = ByteBuffer(data: body){{/isFile}}try request.content.encode(body){{/isBinary}}
+            }{{/required}}{{/bodyParam}}
+            {{/hasBodyParam}}
+            {{#hasFormParams}}struct FormParams: Content {
+                {{#formParams}}
+                var {{paramName}}: {{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}{{{datatypeWithEnum}}}_{{operationId}}{{/isContainer}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{^required}}?{{/required}}
+                {{/formParams}}
+            }
+            try request.content.encode(FormParams({{#formParams}}{{paramName}}: {{paramName}}{{^-last}}, {{/-last}}{{/formParams}})){{/hasFormParams}}
+            try beforeSend(&request)
+        }.flatMapThrowing { response -> {{#lambda.titlecase}}{{operationId}}{{/lambda.titlecase}} in
+            switch response.status.code {
+            {{#responses}}
+            {{#isDefault}}default{{/isDefault}}{{^isDefault}}case {{code}}{{/isDefault}}:
+                return .http{{code}}(value: {{#dataType}}{{#isBinary}}Data(buffer: response.body ?? ByteBuffer()){{/isBinary}}{{^isBinary}}{{#isFile}}Data(buffer: response.body ?? ByteBuffer()){{/isFile}}{{^isFile}}try response.content.decode({{dataType}}.self){{/isFile}}{{/isBinary}}{{/dataType}}{{^dataType}}(){{/dataType}}, raw: response)
+            {{/responses}}
+            {{^hasDefaultResponse}}
+            default:
+                return .http0(value: {{#returnType}}try response.content.decode({{returnType}}.self){{/returnType}}{{^returnType}}(){{/returnType}}, raw: response)
+            {{/hasDefaultResponse}}
+            }
+        }
+    }
+
+{{/useVapor}}
+{{^useVapor}}
     /**
      {{#summary}}
      {{{summary}}}
@@ -268,6 +357,7 @@ extension {{projectName}} {
 
         return requestBuilder.init(method: "{{httpMethod}}", URLString: (url?.string ?? URLString), parameters: parameters, headers: headerParameters)
     }
+{{/useVapor}}
 
 {{/operation}}
 }

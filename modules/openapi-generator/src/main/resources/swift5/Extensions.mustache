@@ -5,8 +5,10 @@
 //
 
 import Foundation{{#usePromiseKit}}
-import PromiseKit{{/usePromiseKit}}
+import PromiseKit{{/usePromiseKit}}{{#useVapor}}
+import Vapor{{/useVapor}}
 
+{{^useVapor}}
 extension Bool: JSONEncodable {
     func encodeToJSON() -> Any { return self as Any }
 }
@@ -177,7 +179,7 @@ extension HTTPURLResponse {
     var isStatusCodeSuccessful: Bool {
         return Array(200 ..< 300).contains(statusCode)
     }
-}{{#usePromiseKit}}
+}{{/useVapor}}{{#usePromiseKit}}
 
 extension RequestBuilder {
     {{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}public{{/nonPublicApi}} func execute() -> Promise<Response<T>> {
@@ -192,4 +194,7 @@ extension RequestBuilder {
         }
         return deferred.promise
     }
-}{{/usePromiseKit}}
+}{{/usePromiseKit}}{{#useVapor}}
+
+extension URL: Content { }
+{{/useVapor}}
