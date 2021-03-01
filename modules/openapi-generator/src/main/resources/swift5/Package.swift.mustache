@@ -43,7 +43,7 @@ let package = Package(
         .target(
             name: "{{projectName}}",
             dependencies: [{{#useVapor}}"Vapor", {{/useVapor}}{{#useAlamofire}}"Alamofire", {{/useAlamofire}}{{#usePromiseKit}}"PromiseKit", {{/usePromiseKit}}{{#useRxSwift}}"RxSwift"{{/useRxSwift}}],
-            path: "Sources"
+            path: "{{#useSPMFileStructure}}Sources{{/useSPMFileStructure}}{{^useSPMFileStructure}}{{projectName}}/Classes{{/useSPMFileStructure}}"
         ),
     ]
 )

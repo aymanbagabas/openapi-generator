@@ -61,6 +61,7 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
     public static final String SWIFT_USE_API_NAMESPACE = "swiftUseApiNamespace";
     public static final String DEFAULT_POD_AUTHORS = "OpenAPI Generator";
     public static final String LENIENT_TYPE_CAST = "lenientTypeCast";
+    public static final String USE_SPM_FILE_STRUCTURE = "useSPMFileStructure";
     protected static final String LIBRARY_ALAMOFIRE = "alamofire";
     protected static final String LIBRARY_URLSESSION = "urlsession";
     protected static final String LIBRARY_VAPOR = "vapor";
@@ -74,9 +75,10 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
     protected boolean objcCompatible = false;
     protected boolean lenientTypeCast = false;
     protected boolean readonlyProperties = false;
-    protected boolean swiftUseApiNamespace;
+    protected boolean swiftUseApiNamespace = false;
+    protected boolean useSPMFileStructure = false;
     protected String[] responseAs = new String[0];
-    protected String sourceFolder = "Sources";
+    protected String sourceFolder = "Classes" + File.separator + "OpenAPIs";
     protected HashSet objcReservedWords;
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
@@ -361,7 +363,12 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
         } else {
             additionalProperties.put(PROJECT_NAME, projectName);
         }
-        sourceFolder = sourceFolder + File.separator + projectName;
+        // Use SPM File Structure ex. Sources/{{PROJECT_NAME}}
+        if (additionalProperties.containsKey(USE_SPM_FILE_STRUCTURE)) {
+            sourceFolder = sourceFolder + File.separator + projectName;
+        } else {
+            sourceFolder = projectName + File.separator + sourceFolder;
+        }
 
         // Setup nonPublicApi option, which generates code with reduced access
         // modifiers; allows embedding elsewhere without exposing non-public API calls
@@ -420,6 +427,11 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
 
         if (!additionalProperties.containsKey(POD_AUTHORS)) {
             additionalProperties.put(POD_AUTHORS, DEFAULT_POD_AUTHORS);
+        }
+
+        if (additionalProperties.containsKey(USE_SPM_FILE_STRUCTURE)) {
+            setSwiftUseApiNamespace(convertPropertyToBooleanAndWriteBack(SWIFT_USE_API_NAMESPACE));
+            sourceFolder = "Sources";
         }
 
         setLenientTypeCast(convertPropertyToBooleanAndWriteBack(LENIENT_TYPE_CAST));
@@ -831,6 +843,10 @@ public class Swift5ClientCodegen extends DefaultCodegen implements CodegenConfig
 
     public void setSwiftUseApiNamespace(boolean swiftUseApiNamespace) {
         this.swiftUseApiNamespace = swiftUseApiNamespace;
+    }
+
+    public void setUseSPMFileStructure(boolean useSPMFileStructure) {
+        this.useSPMFileStructure = useSPMFileStructure;
     }
 
     @Override

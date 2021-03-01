@@ -4,5 +4,6 @@ library: vapor
 inputSpec: modules/openapi-generator/src/test/resources/2_0/swift/petstore-with-fake-endpoints-models-for-testing.yaml
 templateDir: modules/openapi-generator/src/main/resources/swift5
 generateAliasAsModel: true
+useSPMFileStructure: true
 additionalProperties:
   projectName: PetstoreClient
