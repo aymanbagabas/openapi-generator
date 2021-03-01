@@ -1,4 +1,4 @@
-{{^objcCompatible}}{{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}public{{/nonPublicApi}} {{#useClassModels}}final class{{/useClassModels}}{{^useClassModels}}struct{{/useClassModels}} {{{classname}}}: {{#useVapor}}Content{{/useVapor}}{{^useVapor}}Codable{{/useVapor}}{{#vendorExtensions.x-swift-hashable}}, Hashable{{/vendorExtensions.x-swift-hashable}} {
+{{^objcCompatible}}{{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}public{{/nonPublicApi}} {{#useClassModels}}final class{{/useClassModels}}{{^useClassModels}}struct{{/useClassModels}} {{{classname}}}: {{#useVapor}}Content{{/useVapor}}{{^useVapor}}Codable{{/useVapor}} {
 {{/objcCompatible}}{{#objcCompatible}}@objc {{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}public{{/nonPublicApi}} class {{classname}}: NSObject, Codable {
 {{/objcCompatible}}
 
@@ -91,7 +91,7 @@
     }
 }
 
-{{#useVapor}}
+{{^objcCompatible}}
 extension {{classname}}: Hashable {
     {{#nonPublicApi}}internal{{/nonPublicApi}}{{^nonPublicApi}}public{{/nonPublicApi}} static func == (lhs: {{classname}}, rhs: {{classname}}) -> Bool {
         {{#allVars}}
@@ -106,6 +106,5 @@ extension {{classname}}: Hashable {
         {{/allVars}}
         {{#additionalPropertiesType}}hasher.combine(additionalProperties.hashValue){{/additionalPropertiesType}}
     }
-
 }
-{{/useVapor}}
+{{/objcCompatible}}
