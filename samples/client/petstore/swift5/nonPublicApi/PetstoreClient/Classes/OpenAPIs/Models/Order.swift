@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct Order: Codable {
 
     internal enum Status: String, Codable, CaseIterable {
@@ -30,5 +31,61 @@ internal struct Order: Codable {
         self.status = status
         self.complete = complete
     }
+    internal enum CodingKeys: String, CodingKey, CaseIterable {
+        case id
+        case petId
+        case quantity
+        case shipDate
+        case status
+        case complete
+    }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(id, forKey: .id)
+        try container.encodeIfPresent(petId, forKey: .petId)
+        try container.encodeIfPresent(quantity, forKey: .quantity)
+        try container.encodeIfPresent(shipDate, forKey: .shipDate)
+        try container.encodeIfPresent(status, forKey: .status)
+        try container.encodeIfPresent(complete, forKey: .complete)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decodeIfPresent(Int64.self, forKey: .id)
+        petId = try container.decodeIfPresent(Int64.self, forKey: .petId)
+        quantity = try container.decodeIfPresent(Int.self, forKey: .quantity)
+        shipDate = try container.decodeIfPresent(Date.self, forKey: .shipDate)
+        status = try container.decodeIfPresent(Status.self, forKey: .status)
+        complete = try container.decodeIfPresent(Bool.self, forKey: .complete)
+    }
 }
+
+extension Order: Hashable {
+    internal static func == (lhs: Order, rhs: Order) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.petId == rhs.petId &&
+        lhs.quantity == rhs.quantity &&
+        lhs.shipDate == rhs.shipDate &&
+        lhs.status == rhs.status &&
+        lhs.complete == rhs.complete
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(id?.hashValue)
+        hasher.combine(petId?.hashValue)
+        hasher.combine(quantity?.hashValue)
+        hasher.combine(shipDate?.hashValue)
+        hasher.combine(status?.hashValue)
+        hasher.combine(complete?.hashValue)
+        
+    }
+}
+

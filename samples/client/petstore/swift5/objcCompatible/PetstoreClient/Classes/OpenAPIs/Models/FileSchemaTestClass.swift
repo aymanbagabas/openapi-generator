@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class FileSchemaTestClass: NSObject, Codable {
 
     public var file: File?
@@ -16,5 +17,28 @@ import Foundation
         self.file = file
         self.files = files
     }
+    public enum CodingKeys: String, CodingKey, CaseIterable {
+        case file
+        case files
+    }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(file, forKey: .file)
+        try container.encodeIfPresent(files, forKey: .files)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        file = try container.decodeIfPresent(File.self, forKey: .file)
+        files = try container.decodeIfPresent([File].self, forKey: .files)
+    }
 }
+
+

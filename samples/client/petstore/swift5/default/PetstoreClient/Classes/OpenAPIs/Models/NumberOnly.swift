@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 public struct NumberOnly: Codable {
 
     public var justNumber: Double?
@@ -14,9 +15,36 @@ public struct NumberOnly: Codable {
     public init(justNumber: Double? = nil) {
         self.justNumber = justNumber
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case justNumber = "JustNumber"
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(justNumber, forKey: .justNumber)
+    }
+
+    // Decodable protocol methods
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        justNumber = try container.decodeIfPresent(Double.self, forKey: .justNumber)
+    }
 }
+
+extension NumberOnly: Hashable {
+    public static func == (lhs: NumberOnly, rhs: NumberOnly) -> Bool {
+        lhs.justNumber == rhs.justNumber
+        
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(justNumber?.hashValue)
+        
+    }
+}
+

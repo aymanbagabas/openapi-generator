@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 public struct DogAllOf: Codable {
 
     public private(set) var breed: String?
@@ -14,5 +15,36 @@ public struct DogAllOf: Codable {
     public init(breed: String? = nil) {
         self.breed = breed
     }
+    public enum CodingKeys: String, CodingKey, CaseIterable {
+        case breed
+    }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(breed, forKey: .breed)
+    }
+
+    // Decodable protocol methods
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        breed = try container.decodeIfPresent(String.self, forKey: .breed)
+    }
 }
+
+extension DogAllOf: Hashable {
+    public static func == (lhs: DogAllOf, rhs: DogAllOf) -> Bool {
+        lhs.breed == rhs.breed
+        
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(breed?.hashValue)
+        
+    }
+}
+

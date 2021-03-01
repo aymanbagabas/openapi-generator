@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class Animal: NSObject, Codable {
 
     public var _className: String
@@ -16,10 +17,28 @@ import Foundation
         self._className = _className
         self.color = color
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case _className = "className"
         case color
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(_className, forKey: ._className)
+        try container.encodeIfPresent(color, forKey: .color)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        _className = try container.decode(String.self, forKey: ._className)
+        color = try container.decodeIfPresent(String.self, forKey: .color)
+    }
 }
+
+

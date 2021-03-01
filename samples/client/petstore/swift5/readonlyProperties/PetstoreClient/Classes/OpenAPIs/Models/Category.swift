@@ -7,7 +7,8 @@
 
 import Foundation
 
-public struct Category: Codable, Hashable {
+
+public struct Category: Codable {
 
     public private(set) var id: Int64?
     public private(set) var name: String = "default-name"
@@ -16,5 +17,41 @@ public struct Category: Codable, Hashable {
         self.id = id
         self.name = name
     }
+    public enum CodingKeys: String, CodingKey, CaseIterable {
+        case id
+        case name
+    }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+    }
+
+    // Decodable protocol methods
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decodeIfPresent(Int64.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+    }
 }
+
+extension Category: Hashable {
+    public static func == (lhs: Category, rhs: Category) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.name == rhs.name
+        
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id?.hashValue)
+        hasher.combine(name.hashValue)
+        
+    }
+}
+

@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class TypeHolderDefault: NSObject, Codable {
 
     public var stringItem: String = "what"
@@ -22,7 +23,6 @@ import Foundation
         self.boolItem = boolItem
         self.arrayItem = arrayItem
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case stringItem = "string_item"
         case numberItem = "number_item"
@@ -31,4 +31,29 @@ import Foundation
         case arrayItem = "array_item"
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(stringItem, forKey: .stringItem)
+        try container.encode(numberItem, forKey: .numberItem)
+        try container.encode(integerItem, forKey: .integerItem)
+        try container.encode(boolItem, forKey: .boolItem)
+        try container.encode(arrayItem, forKey: .arrayItem)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        stringItem = try container.decode(String.self, forKey: .stringItem)
+        numberItem = try container.decode(Double.self, forKey: .numberItem)
+        integerItem = try container.decode(Int.self, forKey: .integerItem)
+        boolItem = try container.decode(Bool.self, forKey: .boolItem)
+        arrayItem = try container.decode([Int].self, forKey: .arrayItem)
+    }
 }
+
+

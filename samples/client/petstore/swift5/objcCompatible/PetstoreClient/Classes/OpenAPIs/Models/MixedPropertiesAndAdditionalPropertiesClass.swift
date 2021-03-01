@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class MixedPropertiesAndAdditionalPropertiesClass: NSObject, Codable {
 
     public var uuid: UUID?
@@ -18,5 +19,31 @@ import Foundation
         self.dateTime = dateTime
         self.map = map
     }
+    public enum CodingKeys: String, CodingKey, CaseIterable {
+        case uuid
+        case dateTime
+        case map
+    }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(uuid, forKey: .uuid)
+        try container.encodeIfPresent(dateTime, forKey: .dateTime)
+        try container.encodeIfPresent(map, forKey: .map)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        uuid = try container.decodeIfPresent(UUID.self, forKey: .uuid)
+        dateTime = try container.decodeIfPresent(Date.self, forKey: .dateTime)
+        map = try container.decodeIfPresent([String: Animal].self, forKey: .map)
+    }
 }
+
+

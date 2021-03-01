@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 public struct CatAllOf: Codable {
 
     public private(set) var declawed: Bool?
@@ -14,5 +15,36 @@ public struct CatAllOf: Codable {
     public init(declawed: Bool? = nil) {
         self.declawed = declawed
     }
+    public enum CodingKeys: String, CodingKey, CaseIterable {
+        case declawed
+    }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(declawed, forKey: .declawed)
+    }
+
+    // Decodable protocol methods
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        declawed = try container.decodeIfPresent(Bool.self, forKey: .declawed)
+    }
 }
+
+extension CatAllOf: Hashable {
+    public static func == (lhs: CatAllOf, rhs: CatAllOf) -> Bool {
+        lhs.declawed == rhs.declawed
+        
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(declawed?.hashValue)
+        
+    }
+}
+

@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct MixedPropertiesAndAdditionalPropertiesClass: Codable {
 
     internal var uuid: UUID?
@@ -18,5 +19,46 @@ internal struct MixedPropertiesAndAdditionalPropertiesClass: Codable {
         self.dateTime = dateTime
         self.map = map
     }
+    internal enum CodingKeys: String, CodingKey, CaseIterable {
+        case uuid
+        case dateTime
+        case map
+    }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(uuid, forKey: .uuid)
+        try container.encodeIfPresent(dateTime, forKey: .dateTime)
+        try container.encodeIfPresent(map, forKey: .map)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        uuid = try container.decodeIfPresent(UUID.self, forKey: .uuid)
+        dateTime = try container.decodeIfPresent(Date.self, forKey: .dateTime)
+        map = try container.decodeIfPresent([String: Animal].self, forKey: .map)
+    }
 }
+
+extension MixedPropertiesAndAdditionalPropertiesClass: Hashable {
+    internal static func == (lhs: MixedPropertiesAndAdditionalPropertiesClass, rhs: MixedPropertiesAndAdditionalPropertiesClass) -> Bool {
+        lhs.uuid == rhs.uuid &&
+        lhs.dateTime == rhs.dateTime &&
+        lhs.map == rhs.map
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(uuid?.hashValue)
+        hasher.combine(dateTime?.hashValue)
+        hasher.combine(map?.hashValue)
+        
+    }
+}
+

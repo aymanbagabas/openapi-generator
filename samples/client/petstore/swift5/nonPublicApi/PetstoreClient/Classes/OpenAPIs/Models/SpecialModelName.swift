@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct SpecialModelName: Codable {
 
     internal var specialPropertyName: Int64?
@@ -14,9 +15,36 @@ internal struct SpecialModelName: Codable {
     internal init(specialPropertyName: Int64? = nil) {
         self.specialPropertyName = specialPropertyName
     }
-
     internal enum CodingKeys: String, CodingKey, CaseIterable {
         case specialPropertyName = "$special[property.name]"
     }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(specialPropertyName, forKey: .specialPropertyName)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        specialPropertyName = try container.decodeIfPresent(Int64.self, forKey: .specialPropertyName)
+    }
 }
+
+extension SpecialModelName: Hashable {
+    internal static func == (lhs: SpecialModelName, rhs: SpecialModelName) -> Bool {
+        lhs.specialPropertyName == rhs.specialPropertyName
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(specialPropertyName?.hashValue)
+        
+    }
+}
+

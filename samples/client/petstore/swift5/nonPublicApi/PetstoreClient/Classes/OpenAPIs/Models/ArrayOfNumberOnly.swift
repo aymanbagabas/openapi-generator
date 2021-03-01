@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct ArrayOfNumberOnly: Codable {
 
     internal var arrayNumber: [Double]?
@@ -14,9 +15,36 @@ internal struct ArrayOfNumberOnly: Codable {
     internal init(arrayNumber: [Double]? = nil) {
         self.arrayNumber = arrayNumber
     }
-
     internal enum CodingKeys: String, CodingKey, CaseIterable {
         case arrayNumber = "ArrayNumber"
     }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(arrayNumber, forKey: .arrayNumber)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        arrayNumber = try container.decodeIfPresent([Double].self, forKey: .arrayNumber)
+    }
 }
+
+extension ArrayOfNumberOnly: Hashable {
+    internal static func == (lhs: ArrayOfNumberOnly, rhs: ArrayOfNumberOnly) -> Bool {
+        lhs.arrayNumber == rhs.arrayNumber
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(arrayNumber?.hashValue)
+        
+    }
+}
+

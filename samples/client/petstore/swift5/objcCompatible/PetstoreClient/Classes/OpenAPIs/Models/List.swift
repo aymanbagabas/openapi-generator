@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class List: NSObject, Codable {
 
     public var _123list: String?
@@ -14,9 +15,25 @@ import Foundation
     public init(_123list: String? = nil) {
         self._123list = _123list
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case _123list = "123-list"
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(_123list, forKey: ._123list)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        _123list = try container.decodeIfPresent(String.self, forKey: ._123list)
+    }
 }
+
+

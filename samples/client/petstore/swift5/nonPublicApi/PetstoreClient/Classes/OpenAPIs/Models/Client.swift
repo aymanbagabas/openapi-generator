@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct Client: Codable {
 
     internal var client: String?
@@ -14,5 +15,36 @@ internal struct Client: Codable {
     internal init(client: String? = nil) {
         self.client = client
     }
+    internal enum CodingKeys: String, CodingKey, CaseIterable {
+        case client
+    }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(client, forKey: .client)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        client = try container.decodeIfPresent(String.self, forKey: .client)
+    }
 }
+
+extension Client: Hashable {
+    internal static func == (lhs: Client, rhs: Client) -> Bool {
+        lhs.client == rhs.client
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(client?.hashValue)
+        
+    }
+}
+

@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct EnumArrays: Codable {
 
     internal enum JustSymbol: String, Codable, CaseIterable {
@@ -24,10 +25,41 @@ internal struct EnumArrays: Codable {
         self.justSymbol = justSymbol
         self.arrayEnum = arrayEnum
     }
-
     internal enum CodingKeys: String, CodingKey, CaseIterable {
         case justSymbol = "just_symbol"
         case arrayEnum = "array_enum"
     }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(justSymbol, forKey: .justSymbol)
+        try container.encodeIfPresent(arrayEnum, forKey: .arrayEnum)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        justSymbol = try container.decodeIfPresent(JustSymbol.self, forKey: .justSymbol)
+        arrayEnum = try container.decodeIfPresent([ArrayEnum].self, forKey: .arrayEnum)
+    }
 }
+
+extension EnumArrays: Hashable {
+    internal static func == (lhs: EnumArrays, rhs: EnumArrays) -> Bool {
+        lhs.justSymbol == rhs.justSymbol &&
+        lhs.arrayEnum == rhs.arrayEnum
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(justSymbol?.hashValue)
+        hasher.combine(arrayEnum?.hashValue)
+        
+    }
+}
+

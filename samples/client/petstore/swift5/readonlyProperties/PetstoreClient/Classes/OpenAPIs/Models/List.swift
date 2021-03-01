@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 public struct List: Codable {
 
     public private(set) var _123list: String?
@@ -14,9 +15,36 @@ public struct List: Codable {
     public init(_123list: String? = nil) {
         self._123list = _123list
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case _123list = "123-list"
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(_123list, forKey: ._123list)
+    }
+
+    // Decodable protocol methods
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        _123list = try container.decodeIfPresent(String.self, forKey: ._123list)
+    }
 }
+
+extension List: Hashable {
+    public static func == (lhs: List, rhs: List) -> Bool {
+        lhs._123list == rhs._123list
+        
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(_123list?.hashValue)
+        
+    }
+}
+

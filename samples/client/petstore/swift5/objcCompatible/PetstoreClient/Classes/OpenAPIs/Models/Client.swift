@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class Client: NSObject, Codable {
 
     public var client: String?
@@ -14,5 +15,25 @@ import Foundation
     public init(client: String? = nil) {
         self.client = client
     }
+    public enum CodingKeys: String, CodingKey, CaseIterable {
+        case client
+    }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(client, forKey: .client)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        client = try container.decodeIfPresent(String.self, forKey: .client)
+    }
 }
+
+

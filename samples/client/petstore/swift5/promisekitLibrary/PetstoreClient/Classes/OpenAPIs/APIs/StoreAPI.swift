@@ -9,6 +9,7 @@ import Foundation
 import PromiseKit
 
 open class StoreAPI {
+
     /**
      Delete purchase order by ID
      
@@ -16,7 +17,7 @@ open class StoreAPI {
      - parameter apiResponseQueue: The queue on which api response is dispatched.
      - returns: Promise<Void>
      */
-    open class func deleteOrder( orderId: String, apiResponseQueue: DispatchQueue = PetstoreClientAPI.apiResponseQueue) -> Promise<Void> {
+    open class func deleteOrder( orderId: String, apiResponseQueue: DispatchQueue = PetstoreClient.apiResponseQueue) -> Promise<Void> {
         let deferred = Promise<Void>.pending()
         deleteOrderWithRequestBuilder(orderId: orderId).execute(apiResponseQueue) { result -> Void in
             switch result {
@@ -28,7 +29,6 @@ open class StoreAPI {
         }
         return deferred.promise
     }
-
     /**
      Delete purchase order by ID
      - DELETE /store/order/{order_id}
@@ -41,7 +41,7 @@ open class StoreAPI {
         let orderIdPreEscape = "\(APIHelper.mapValueToPathItem(orderId))"
         let orderIdPostEscape = orderIdPreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
         path = path.replacingOccurrences(of: "{order_id}", with: orderIdPostEscape, options: .literal, range: nil)
-        let URLString = PetstoreClientAPI.basePath + path
+        let URLString = PetstoreClient.basePath + path
         let parameters: [String: Any]? = nil
 
         let url = URLComponents(string: URLString)
@@ -52,10 +52,11 @@ open class StoreAPI {
 
         let headerParameters = APIHelper.rejectNilHeaders(nillableHeaders)
 
-        let requestBuilder: RequestBuilder<Void>.Type = PetstoreClientAPI.requestBuilderFactory.getNonDecodableBuilder()
+        let requestBuilder: RequestBuilder<Void>.Type = PetstoreClient.requestBuilderFactory.getNonDecodableBuilder()
 
         return requestBuilder.init(method: "DELETE", URLString: (url?.string ?? URLString), parameters: parameters, headers: headerParameters)
     }
+
 
     /**
      Returns pet inventories by status
@@ -63,7 +64,7 @@ open class StoreAPI {
      - parameter apiResponseQueue: The queue on which api response is dispatched.
      - returns: Promise<[String: Int]>
      */
-    open class func getInventory(apiResponseQueue: DispatchQueue = PetstoreClientAPI.apiResponseQueue) -> Promise<[String: Int]> {
+    open class func getInventory(apiResponseQueue: DispatchQueue = PetstoreClient.apiResponseQueue) -> Promise<[String: Int]> {
         let deferred = Promise<[String: Int]>.pending()
         getInventoryWithRequestBuilder().execute(apiResponseQueue) { result -> Void in
             switch result {
@@ -75,7 +76,6 @@ open class StoreAPI {
         }
         return deferred.promise
     }
-
     /**
      Returns pet inventories by status
      - GET /store/inventory
@@ -87,7 +87,7 @@ open class StoreAPI {
      */
     open class func getInventoryWithRequestBuilder() -> RequestBuilder<[String: Int]> {
         let path = "/store/inventory"
-        let URLString = PetstoreClientAPI.basePath + path
+        let URLString = PetstoreClient.basePath + path
         let parameters: [String: Any]? = nil
 
         let url = URLComponents(string: URLString)
@@ -98,10 +98,11 @@ open class StoreAPI {
 
         let headerParameters = APIHelper.rejectNilHeaders(nillableHeaders)
 
-        let requestBuilder: RequestBuilder<[String: Int]>.Type = PetstoreClientAPI.requestBuilderFactory.getBuilder()
+        let requestBuilder: RequestBuilder<[String: Int]>.Type = PetstoreClient.requestBuilderFactory.getBuilder()
 
         return requestBuilder.init(method: "GET", URLString: (url?.string ?? URLString), parameters: parameters, headers: headerParameters)
     }
+
 
     /**
      Find purchase order by ID
@@ -110,7 +111,7 @@ open class StoreAPI {
      - parameter apiResponseQueue: The queue on which api response is dispatched.
      - returns: Promise<Order>
      */
-    open class func getOrderById( orderId: Int64, apiResponseQueue: DispatchQueue = PetstoreClientAPI.apiResponseQueue) -> Promise<Order> {
+    open class func getOrderById( orderId: Int64, apiResponseQueue: DispatchQueue = PetstoreClient.apiResponseQueue) -> Promise<Order> {
         let deferred = Promise<Order>.pending()
         getOrderByIdWithRequestBuilder(orderId: orderId).execute(apiResponseQueue) { result -> Void in
             switch result {
@@ -122,7 +123,6 @@ open class StoreAPI {
         }
         return deferred.promise
     }
-
     /**
      Find purchase order by ID
      - GET /store/order/{order_id}
@@ -135,7 +135,7 @@ open class StoreAPI {
         let orderIdPreEscape = "\(APIHelper.mapValueToPathItem(orderId))"
         let orderIdPostEscape = orderIdPreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
         path = path.replacingOccurrences(of: "{order_id}", with: orderIdPostEscape, options: .literal, range: nil)
-        let URLString = PetstoreClientAPI.basePath + path
+        let URLString = PetstoreClient.basePath + path
         let parameters: [String: Any]? = nil
 
         let url = URLComponents(string: URLString)
@@ -146,10 +146,11 @@ open class StoreAPI {
 
         let headerParameters = APIHelper.rejectNilHeaders(nillableHeaders)
 
-        let requestBuilder: RequestBuilder<Order>.Type = PetstoreClientAPI.requestBuilderFactory.getBuilder()
+        let requestBuilder: RequestBuilder<Order>.Type = PetstoreClient.requestBuilderFactory.getBuilder()
 
         return requestBuilder.init(method: "GET", URLString: (url?.string ?? URLString), parameters: parameters, headers: headerParameters)
     }
+
 
     /**
      Place an order for a pet
@@ -158,7 +159,7 @@ open class StoreAPI {
      - parameter apiResponseQueue: The queue on which api response is dispatched.
      - returns: Promise<Order>
      */
-    open class func placeOrder( body: Order, apiResponseQueue: DispatchQueue = PetstoreClientAPI.apiResponseQueue) -> Promise<Order> {
+    open class func placeOrder( body: Order, apiResponseQueue: DispatchQueue = PetstoreClient.apiResponseQueue) -> Promise<Order> {
         let deferred = Promise<Order>.pending()
         placeOrderWithRequestBuilder(body: body).execute(apiResponseQueue) { result -> Void in
             switch result {
@@ -170,7 +171,6 @@ open class StoreAPI {
         }
         return deferred.promise
     }
-
     /**
      Place an order for a pet
      - POST /store/order
@@ -179,7 +179,7 @@ open class StoreAPI {
      */
     open class func placeOrderWithRequestBuilder(body: Order) -> RequestBuilder<Order> {
         let path = "/store/order"
-        let URLString = PetstoreClientAPI.basePath + path
+        let URLString = PetstoreClient.basePath + path
         let parameters = JSONEncodingHelper.encodingParameters(forEncodableObject: body)
 
         let url = URLComponents(string: URLString)
@@ -190,7 +190,7 @@ open class StoreAPI {
 
         let headerParameters = APIHelper.rejectNilHeaders(nillableHeaders)
 
-        let requestBuilder: RequestBuilder<Order>.Type = PetstoreClientAPI.requestBuilderFactory.getBuilder()
+        let requestBuilder: RequestBuilder<Order>.Type = PetstoreClient.requestBuilderFactory.getBuilder()
 
         return requestBuilder.init(method: "POST", URLString: (url?.string ?? URLString), parameters: parameters, headers: headerParameters)
     }

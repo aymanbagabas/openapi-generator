@@ -7,6 +7,8 @@
 
 import Foundation
 
+
+
 /** Model for testing reserved words */
 @objc public class Return: NSObject, Codable {
 
@@ -20,9 +22,25 @@ import Foundation
     public init(_return: Int? = nil) {
         self._return = _return
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case _return = "return"
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(_return, forKey: ._return)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        _return = try container.decodeIfPresent(Int.self, forKey: ._return)
+    }
 }
+
+

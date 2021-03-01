@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct Dog: Codable {
 
     internal var className: String
@@ -18,5 +19,46 @@ internal struct Dog: Codable {
         self.color = color
         self.breed = breed
     }
+    internal enum CodingKeys: String, CodingKey, CaseIterable {
+        case className
+        case color
+        case breed
+    }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(className, forKey: .className)
+        try container.encodeIfPresent(color, forKey: .color)
+        try container.encodeIfPresent(breed, forKey: .breed)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        className = try container.decode(String.self, forKey: .className)
+        color = try container.decodeIfPresent(String.self, forKey: .color)
+        breed = try container.decodeIfPresent(String.self, forKey: .breed)
+    }
 }
+
+extension Dog: Hashable {
+    internal static func == (lhs: Dog, rhs: Dog) -> Bool {
+        lhs.className == rhs.className &&
+        lhs.color == rhs.color &&
+        lhs.breed == rhs.breed
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(className.hashValue)
+        hasher.combine(color?.hashValue)
+        hasher.combine(breed?.hashValue)
+        
+    }
+}
+

@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class AdditionalPropertiesClass: NSObject, Codable {
 
     public var mapString: [String: String]?
@@ -16,10 +17,28 @@ import Foundation
         self.mapString = mapString
         self.mapMapString = mapMapString
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case mapString = "map_string"
         case mapMapString = "map_map_string"
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(mapString, forKey: .mapString)
+        try container.encodeIfPresent(mapMapString, forKey: .mapMapString)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        mapString = try container.decodeIfPresent([String: String].self, forKey: .mapString)
+        mapMapString = try container.decodeIfPresent([String: [String: String]].self, forKey: .mapMapString)
+    }
 }
+
+

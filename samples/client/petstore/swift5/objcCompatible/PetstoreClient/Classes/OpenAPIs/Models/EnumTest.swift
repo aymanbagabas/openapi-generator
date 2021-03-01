@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class EnumTest: NSObject, Codable {
 
     public enum EnumString: String, Codable, CaseIterable {
@@ -40,7 +41,6 @@ import Foundation
         self.enumNumber = enumNumber
         self.outerEnum = outerEnum
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case enumString = "enum_string"
         case enumStringRequired = "enum_string_required"
@@ -49,4 +49,29 @@ import Foundation
         case outerEnum
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(enumString, forKey: .enumString)
+        try container.encode(enumStringRequired, forKey: .enumStringRequired)
+        try container.encodeIfPresent(enumInteger, forKey: .enumInteger)
+        try container.encodeIfPresent(enumNumber, forKey: .enumNumber)
+        try container.encodeIfPresent(outerEnum, forKey: .outerEnum)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        enumString = try container.decodeIfPresent(EnumString.self, forKey: .enumString)
+        enumStringRequired = try container.decode(EnumStringRequired.self, forKey: .enumStringRequired)
+        enumInteger = try container.decodeIfPresent(EnumInteger.self, forKey: .enumInteger)
+        enumNumber = try container.decodeIfPresent(EnumNumber.self, forKey: .enumNumber)
+        outerEnum = try container.decodeIfPresent(OuterEnum.self, forKey: .outerEnum)
+    }
 }
+
+

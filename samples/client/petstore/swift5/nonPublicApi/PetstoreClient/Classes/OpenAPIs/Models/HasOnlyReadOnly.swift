@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct HasOnlyReadOnly: Codable {
 
     internal var bar: String?
@@ -16,5 +17,41 @@ internal struct HasOnlyReadOnly: Codable {
         self.bar = bar
         self.foo = foo
     }
+    internal enum CodingKeys: String, CodingKey, CaseIterable {
+        case bar
+        case foo
+    }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(bar, forKey: .bar)
+        try container.encodeIfPresent(foo, forKey: .foo)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        bar = try container.decodeIfPresent(String.self, forKey: .bar)
+        foo = try container.decodeIfPresent(String.self, forKey: .foo)
+    }
 }
+
+extension HasOnlyReadOnly: Hashable {
+    internal static func == (lhs: HasOnlyReadOnly, rhs: HasOnlyReadOnly) -> Bool {
+        lhs.bar == rhs.bar &&
+        lhs.foo == rhs.foo
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(bar?.hashValue)
+        hasher.combine(foo?.hashValue)
+        
+    }
+}
+

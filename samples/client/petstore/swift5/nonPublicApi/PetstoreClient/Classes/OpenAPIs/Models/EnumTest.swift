@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct EnumTest: Codable {
 
     internal enum EnumString: String, Codable, CaseIterable {
@@ -40,7 +41,6 @@ internal struct EnumTest: Codable {
         self.enumNumber = enumNumber
         self.outerEnum = outerEnum
     }
-
     internal enum CodingKeys: String, CodingKey, CaseIterable {
         case enumString = "enum_string"
         case enumStringRequired = "enum_string_required"
@@ -49,4 +49,48 @@ internal struct EnumTest: Codable {
         case outerEnum
     }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(enumString, forKey: .enumString)
+        try container.encode(enumStringRequired, forKey: .enumStringRequired)
+        try container.encodeIfPresent(enumInteger, forKey: .enumInteger)
+        try container.encodeIfPresent(enumNumber, forKey: .enumNumber)
+        try container.encodeIfPresent(outerEnum, forKey: .outerEnum)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        enumString = try container.decodeIfPresent(EnumString.self, forKey: .enumString)
+        enumStringRequired = try container.decode(EnumStringRequired.self, forKey: .enumStringRequired)
+        enumInteger = try container.decodeIfPresent(EnumInteger.self, forKey: .enumInteger)
+        enumNumber = try container.decodeIfPresent(EnumNumber.self, forKey: .enumNumber)
+        outerEnum = try container.decodeIfPresent(OuterEnum.self, forKey: .outerEnum)
+    }
 }
+
+extension EnumTest: Hashable {
+    internal static func == (lhs: EnumTest, rhs: EnumTest) -> Bool {
+        lhs.enumString == rhs.enumString &&
+        lhs.enumStringRequired == rhs.enumStringRequired &&
+        lhs.enumInteger == rhs.enumInteger &&
+        lhs.enumNumber == rhs.enumNumber &&
+        lhs.outerEnum == rhs.outerEnum
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(enumString?.hashValue)
+        hasher.combine(enumStringRequired.hashValue)
+        hasher.combine(enumInteger?.hashValue)
+        hasher.combine(enumNumber?.hashValue)
+        hasher.combine(outerEnum?.hashValue)
+        
+    }
+}
+

@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct ApiResponse: Codable {
 
     internal var code: Int?
@@ -18,5 +19,46 @@ internal struct ApiResponse: Codable {
         self.type = type
         self.message = message
     }
+    internal enum CodingKeys: String, CodingKey, CaseIterable {
+        case code
+        case type
+        case message
+    }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(code, forKey: .code)
+        try container.encodeIfPresent(type, forKey: .type)
+        try container.encodeIfPresent(message, forKey: .message)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        code = try container.decodeIfPresent(Int.self, forKey: .code)
+        type = try container.decodeIfPresent(String.self, forKey: .type)
+        message = try container.decodeIfPresent(String.self, forKey: .message)
+    }
 }
+
+extension ApiResponse: Hashable {
+    internal static func == (lhs: ApiResponse, rhs: ApiResponse) -> Bool {
+        lhs.code == rhs.code &&
+        lhs.type == rhs.type &&
+        lhs.message == rhs.message
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(code?.hashValue)
+        hasher.combine(type?.hashValue)
+        hasher.combine(message?.hashValue)
+        
+    }
+}
+

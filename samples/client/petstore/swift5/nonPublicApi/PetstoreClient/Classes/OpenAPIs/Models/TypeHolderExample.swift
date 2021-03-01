@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 internal struct TypeHolderExample: Codable {
 
     internal var stringItem: String
@@ -22,7 +23,6 @@ internal struct TypeHolderExample: Codable {
         self.boolItem = boolItem
         self.arrayItem = arrayItem
     }
-
     internal enum CodingKeys: String, CodingKey, CaseIterable {
         case stringItem = "string_item"
         case numberItem = "number_item"
@@ -31,4 +31,48 @@ internal struct TypeHolderExample: Codable {
         case arrayItem = "array_item"
     }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(stringItem, forKey: .stringItem)
+        try container.encode(numberItem, forKey: .numberItem)
+        try container.encode(integerItem, forKey: .integerItem)
+        try container.encode(boolItem, forKey: .boolItem)
+        try container.encode(arrayItem, forKey: .arrayItem)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        stringItem = try container.decode(String.self, forKey: .stringItem)
+        numberItem = try container.decode(Double.self, forKey: .numberItem)
+        integerItem = try container.decode(Int.self, forKey: .integerItem)
+        boolItem = try container.decode(Bool.self, forKey: .boolItem)
+        arrayItem = try container.decode([Int].self, forKey: .arrayItem)
+    }
 }
+
+extension TypeHolderExample: Hashable {
+    internal static func == (lhs: TypeHolderExample, rhs: TypeHolderExample) -> Bool {
+        lhs.stringItem == rhs.stringItem &&
+        lhs.numberItem == rhs.numberItem &&
+        lhs.integerItem == rhs.integerItem &&
+        lhs.boolItem == rhs.boolItem &&
+        lhs.arrayItem == rhs.arrayItem
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(stringItem.hashValue)
+        hasher.combine(numberItem.hashValue)
+        hasher.combine(integerItem.hashValue)
+        hasher.combine(boolItem.hashValue)
+        hasher.combine(arrayItem.hashValue)
+        
+    }
+}
+

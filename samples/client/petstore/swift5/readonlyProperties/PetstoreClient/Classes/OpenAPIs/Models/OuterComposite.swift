@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 public struct OuterComposite: Codable {
 
     public private(set) var myNumber: Double?
@@ -18,11 +19,46 @@ public struct OuterComposite: Codable {
         self.myString = myString
         self.myBoolean = myBoolean
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case myNumber = "my_number"
         case myString = "my_string"
         case myBoolean = "my_boolean"
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(myNumber, forKey: .myNumber)
+        try container.encodeIfPresent(myString, forKey: .myString)
+        try container.encodeIfPresent(myBoolean, forKey: .myBoolean)
+    }
+
+    // Decodable protocol methods
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        myNumber = try container.decodeIfPresent(Double.self, forKey: .myNumber)
+        myString = try container.decodeIfPresent(String.self, forKey: .myString)
+        myBoolean = try container.decodeIfPresent(Bool.self, forKey: .myBoolean)
+    }
 }
+
+extension OuterComposite: Hashable {
+    public static func == (lhs: OuterComposite, rhs: OuterComposite) -> Bool {
+        lhs.myNumber == rhs.myNumber &&
+        lhs.myString == rhs.myString &&
+        lhs.myBoolean == rhs.myBoolean
+        
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(myNumber?.hashValue)
+        hasher.combine(myString?.hashValue)
+        hasher.combine(myBoolean?.hashValue)
+        
+    }
+}
+

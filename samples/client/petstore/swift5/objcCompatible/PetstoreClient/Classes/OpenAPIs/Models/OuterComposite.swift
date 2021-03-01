@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class OuterComposite: NSObject, Codable {
 
     public var myNumber: Double?
@@ -23,11 +24,31 @@ import Foundation
         self.myString = myString
         self.myBoolean = myBoolean
     }
-
     public enum CodingKeys: String, CodingKey, CaseIterable {
         case myNumber = "my_number"
         case myString = "my_string"
         case myBoolean = "my_boolean"
     }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(myNumber, forKey: .myNumber)
+        try container.encodeIfPresent(myString, forKey: .myString)
+        try container.encodeIfPresent(myBoolean, forKey: .myBoolean)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        myNumber = try container.decodeIfPresent(Double.self, forKey: .myNumber)
+        myString = try container.decodeIfPresent(String.self, forKey: .myString)
+        myBoolean = try container.decodeIfPresent(Bool.self, forKey: .myBoolean)
+    }
 }
+
+

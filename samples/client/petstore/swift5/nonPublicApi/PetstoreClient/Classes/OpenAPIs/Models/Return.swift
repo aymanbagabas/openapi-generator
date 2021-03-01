@@ -7,17 +7,46 @@
 
 import Foundation
 
+
+
 /** Model for testing reserved words */
 internal struct Return: Codable {
 
-    internal var _return: Int?
+    internal var `return`: Int?
 
-    internal init(_return: Int? = nil) {
-        self._return = _return
+    internal init(`return`: Int? = nil) {
+        self.`return` = `return`
     }
-
     internal enum CodingKeys: String, CodingKey, CaseIterable {
-        case _return = "return"
+        case `return` = "return"
     }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(`return`, forKey: .`return`)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        `return` = try container.decodeIfPresent(Int.self, forKey: .`return`)
+    }
 }
+
+extension Return: Hashable {
+    internal static func == (lhs: Return, rhs: Return) -> Bool {
+        lhs.`return` == rhs.`return`
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(`return`?.hashValue)
+        
+    }
+}
+

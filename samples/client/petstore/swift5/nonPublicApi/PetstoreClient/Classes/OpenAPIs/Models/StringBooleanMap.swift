@@ -7,8 +7,11 @@
 
 import Foundation
 
+
 internal struct StringBooleanMap: Codable {
 
+    internal enum CodingKeys: CodingKey, CaseIterable {
+    }
     internal var additionalProperties: [String: Bool] = [:]
 
     internal subscript(key: String) -> Bool? {
@@ -27,19 +30,30 @@ internal struct StringBooleanMap: Codable {
     // Encodable protocol methods
 
     internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
 
-        var container = encoder.container(keyedBy: String.self)
-
-        try container.encodeMap(additionalProperties)
+        var additionalPropertiesContainer = encoder.container(keyedBy: String.self)
+        try additionalPropertiesContainer.encodeMap(additionalProperties)
     }
 
     // Decodable protocol methods
 
     internal init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: String.self)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
 
         var nonAdditionalPropertyKeys = Set<String>()
-        additionalProperties = try container.decodeMap(Bool.self, excludedKeys: nonAdditionalPropertyKeys)
+        let additionalPropertiesContainer = try decoder.container(keyedBy: String.self)
+        additionalProperties = try additionalPropertiesContainer.decodeMap(Bool.self, excludedKeys: nonAdditionalPropertyKeys)
+    }
+}
+
+extension StringBooleanMap: Hashable {
+    internal static func == (lhs: StringBooleanMap, rhs: StringBooleanMap) -> Bool {
+        lhs.additionalProperties == rhs.additionalProperties
     }
 
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(additionalProperties.hashValue)
+    }
 }
+

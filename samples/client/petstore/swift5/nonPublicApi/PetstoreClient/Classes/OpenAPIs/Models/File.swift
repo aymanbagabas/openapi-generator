@@ -7,6 +7,8 @@
 
 import Foundation
 
+
+
 /** Must be named &#x60;File&#x60; for test. */
 internal struct File: Codable {
 
@@ -16,5 +18,36 @@ internal struct File: Codable {
     internal init(sourceURI: String? = nil) {
         self.sourceURI = sourceURI
     }
+    internal enum CodingKeys: String, CodingKey, CaseIterable {
+        case sourceURI
+    }
 
+    // Encodable protocol methods
+
+    internal func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(sourceURI, forKey: .sourceURI)
+    }
+
+    // Decodable protocol methods
+
+    internal init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        sourceURI = try container.decodeIfPresent(String.self, forKey: .sourceURI)
+    }
 }
+
+extension File: Hashable {
+    internal static func == (lhs: File, rhs: File) -> Bool {
+        lhs.sourceURI == rhs.sourceURI
+        
+    }
+
+    internal func hash(into hasher: inout Hasher) {
+        hasher.combine(sourceURI?.hashValue)
+        
+    }
+}
+

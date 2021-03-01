@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 **category** | [**Category**](Category.md) |  | [optional] 
 **name** | **String** |  | 
 **photoUrls** | **[String]** |  | 
-**tags** | [Tag] |  | [optional] 
+**tags** | [[**Tag**](Tag.md)] |  | [optional] 
 **status** | **String** | pet status in the store | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @objc public class CatAllOf: NSObject, Codable {
 
     public var declawed: Bool?
@@ -19,5 +20,25 @@ import Foundation
     public init(declawed: Bool? = nil) {
         self.declawed = declawed
     }
+    public enum CodingKeys: String, CodingKey, CaseIterable {
+        case declawed
+    }
 
+    // Encodable protocol methods
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encodeIfPresent(declawed, forKey: .declawed)
+    }
+
+    // Decodable protocol methods
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        declawed = try container.decodeIfPresent(Bool.self, forKey: .declawed)
+    }
 }
+
+
