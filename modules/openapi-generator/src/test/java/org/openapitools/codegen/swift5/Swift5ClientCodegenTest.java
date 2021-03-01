@@ -43,12 +43,12 @@ public class Swift5ClientCodegenTest {
 
     @Test(enabled = true)
     public void testCapitalizedReservedWord() throws Exception {
-        Assert.assertEquals(swiftCodegen.toEnumVarName("AS", null), "_as");
+        Assert.assertEquals(swiftCodegen.toEnumVarName("AS", null), "`as`");
     }
 
     @Test(enabled = true)
     public void testReservedWord() throws Exception {
-        Assert.assertEquals(swiftCodegen.toEnumVarName("Public", null), "_public");
+        Assert.assertEquals(swiftCodegen.toEnumVarName("Public", null), "`public`");
     }
 
     @Test(enabled = true)
@@ -109,8 +109,13 @@ public class Swift5ClientCodegenTest {
         final Operation p = openAPI.getPaths().get(path).getPost();
         final CodegenOperation op = codegen.fromOperation(path, "post", p, null);
 
-        Assert.assertEquals(op.returnType, "URL");
-        Assert.assertEquals(op.bodyParam.dataType, "URL");
+        if (codegen.getLibrary().equals("vapor")) {
+            Assert.assertEquals(op.returnType, "Data");
+            Assert.assertEquals(op.bodyParam.dataType, "Data");
+        } else {
+            Assert.assertEquals(op.returnType, "URL");
+            Assert.assertEquals(op.bodyParam.dataType, "URL");
+        }
         Assert.assertTrue(op.bodyParam.isBinary);
         Assert.assertTrue(op.responses.get(0).isBinary);
     }
